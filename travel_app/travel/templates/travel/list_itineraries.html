@@ -1,0 +1,116 @@
+{% extends "travel/layout.html" %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %}"
+                role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <h2 class="mb-4 text-center font-weight-bold text-info">Lista de Itinerarios</h2>
+
+            <form method="GET">
+                <div class="form-group">
+                    <label for="search_query">Filtrar por Viaje:</label>
+                    <select class="form-control", class="form-control rounded-pill w-100" id="search_query" name="search_query"
+                    placeholder="Buscar itinerarios por viaje" value="{{ search_query|default:'' }}" onchange="this.form.submit()">
+                        <option value="">Todos los Viajes</option>
+                        {% for trip in trips %}
+                        <option value="{{ trip.id }}">
+                            {{ trip }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+
+
+            {% if itineraries %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col" data-sortable="true">Excursión</th>
+                        <th scope="col" data-sortable="true">Hotel</th>
+                        <th scope="col" data-sortable="true">Destino</th>
+                        <th scope="col" data-sortable="true">Fecha Y Hora</th>
+                        <th scope="col">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for itinerary in itineraries %}
+                    <tr>
+                        <td>{{ itinerary.excursion_names }}</td>
+                        <td>{{ itinerary.hotels }}</td>
+                        <td>{{ itinerary.destination }}</td>
+                        <td>{{ itinerary.dates_and_times }}</td>
+                        <td>
+                            <a href="{% url 'edit_itinerary' itinerary.id %}" class="btn btn-outline-warning btn-sm">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#deleteModal{{ itinerary.id }}">
+                                <i class="fas fa-trash-alt"></i> Eliminar
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="deleteModal{{ itinerary.id }}" tabindex="-1"
+                        aria-labelledby="deleteModalLabel{{ itinerary.id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteModalLabel{{ itinerary.id }}">Confirmar
+                                        Eliminación</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>¿Estás seguro de que deseas eliminar el itinerario {{ itinerary.excursion_names
+                                        }} del {{ itinerary.trip}}?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cancelar</button>
+                                    <a href="{% url 'delete_itinerary' itinerary.id %}"
+                                        class="btn btn-danger">Confirmar</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="pagination">
+                <span class="step-links">
+                    {% if itineraries.has_previous %}
+                    <a href="?page=1">&laquo; primera |</a>
+                    <a href="?page={{ itineraries.previous_page_number }}">anterior</a>
+                    {% endif %}
+
+                    <span class="current">
+                        Página {{ itineraries.number }} de {{ itineraries.paginator.num_pages }}.
+                    </span>
+
+                    {% if itineraries.has_next %}
+                    <a href="?page={{ itineraries.next_page_number }}">siguiente |</a>
+                    <a href="?page={{ itineraries.paginator.num_pages }}">ultima &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+            {% endif %}
+
+            <a href="{% url 'create_itinerary' %}" class="btn btn-primary btn-block mt-3 rounded-pill">Crear
+                Itinerario</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

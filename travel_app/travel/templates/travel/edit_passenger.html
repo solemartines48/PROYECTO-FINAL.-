@@ -1,0 +1,28 @@
+{% extends "travel/layout.html" %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %}"
+                role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <h2 class="mb-4 text-center font-weight-bold text-info">Editar Pasajero</h2>
+
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-info btn-block rounded-pill">Guardar Cambios</button>
+            </form>
+            <a href="{% url 'list_passengers' %}" class="btn btn-danger btn-block mt-3 rounded-pill md-4">Cancelar</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

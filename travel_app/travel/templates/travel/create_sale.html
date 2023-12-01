@@ -1,0 +1,129 @@
+{% extends "travel/layout.html" %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %}"
+                role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <h2 class="mb-4 text-center font-weight-bold text-info">Registro de Venta</h2>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="inputTripDate">Fecha del viaje:</label>
+                        <input type="date" class="form-control" id="inputTripDate" placeholder="Selecciona una fecha">
+                    </div>
+                </div>
+            </div>
+
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="table">
+                            <tr>
+                                <th>ID</th>
+                                <th>Origen</th>
+                                <th>Destino</th>
+                                <th>Precio</th>
+                                <th>Fecha Salida</th>
+                                <th>Fecha Llegada</th>
+                                <th>Seleccionar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tripTableBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row mb-3">
+                    {% for field in form %}
+                    <div class="col-md-6 mb-3">
+                        {% if field.name != 'trip' %}
+                        <label for="{{ field.id_for_label }}">{{ field.label|capfirst }}</label>
+                        {% endif %}
+
+                        {{ field }}
+
+                    </div>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn btn-info rounded-pill">Registrar Venta</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#inputTripDate').change(function () {
+            const selectedDate = $(this).val();
+            if (selectedDate) {
+                $.ajax({
+                    url: `/get_trips_by_date/${selectedDate}/`,
+                    type: 'GET',
+                    success: function (data) {
+                        displayTrips(data.trips);
+                    },
+                    error: function () {
+                        console.error('Error al obtener los viajes por fecha');
+                    }
+                });
+            }
+        });
+        function displayTrips(trips) {
+            $('#tripTableBody').empty();
+            trips.forEach(function (trip) {
+                const tableRow = `
+            <tr>
+                <td>${trip.id}</td>
+                <td>${trip.origin}</td>
+                <td>${trip.destination}</td>
+                <td>${trip.price}</td>
+                <td>${trip.departure_date}</td>
+                <td>${trip.arrival_date}</td>
+                <td><input type="checkbox" name="selected_trip" value="${trip.id}" class="form-check-input"></td>
+            </tr>
+        `;
+                $('#tripTableBody').append(tableRow);
+            });
+
+            $('input[name="selected_trip"]').on('change', function () {
+                const selectedTripCheckbox = $(this);
+                $('input[name="selected_trip"]').not(selectedTripCheckbox).prop('checked', false);
+                const selectedTripId = selectedTripCheckbox.val();
+                $('#id_trip').val(selectedTripId);
+
+                $.ajax({
+                    url: '/get_trip_price/' + selectedTripId + '/',
+                    type: 'GET',
+                    success: function (data) {
+                        $('#id_price').val(data.price);
+                        const arrivalDate = new Date(selectedTripCheckbox.closest('tr').find('td:nth-child(5)').text());
+                        const departureDate = new Date(selectedTripCheckbox.closest('tr').find('td:nth-child(6)').text());
+                        const diffTime = Math.abs(departureDate - arrivalDate);
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        var totalPrice = parseFloat(data.price) * diffDays;
+                        $('#id_total_debt').val(totalPrice.toFixed(2));
+                    },
+                    error: function () {
+                        console.error('Error al obtener el precio del viaje');
+                    }
+                });
+            });
+
+        }
+
+    });
+
+
+
+</script>
+{% endblock %}

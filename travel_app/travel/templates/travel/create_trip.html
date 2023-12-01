@@ -1,0 +1,53 @@
+{% extends "travel/layout.html" %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %}" role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <h2 class="mb-4 text-center font-weight-bold text-info">Registro de Viaje</h2>
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                <div class="row mb-3">
+                    {% for field in form %}
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ field.id_for_label }}">{{ field.label|capfirst }}</label>
+                        {{ field }}
+                        {% if field.name == 'arrival_date' %}
+                        <div id="date_error" class="text-danger"></div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn btn-info rounded-pill">Registrar Viaje</button>
+                <a href="{% url 'list_trips' %}" class="btn btn-danger rounded-pill">Cancelar</a>
+            </form>
+            <br>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>    
+    $(document).ready(function() {
+        $('#id_arrival_date, #id_departure_date').change(function() {
+            const arrivalDate = new Date($('#id_arrival_date').val());
+            const departureDate = new Date($('#id_departure_date').val());
+            if (arrivalDate <= departureDate) {
+                $('#date_error').text('La fecha de llegada debe ser posterior a la fecha de salida');
+            } else {
+                $('#date_error').text('');
+            }
+        });
+    });
+</script>
+
+{% endblock %}

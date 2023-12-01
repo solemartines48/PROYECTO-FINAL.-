@@ -1,0 +1,125 @@
+
+.logo {
+    margin-top: 2%;
+    width: 200px; /* Ajusta el ancho según tus necesidades */
+    height: auto;
+    border: 2px solid rgb(2, 28, 58); /* Ajusta el color y el grosor del borde según tus necesidades */
+    border-radius: 8px; /* Ajusta el radio de borde según tus necesidades */
+    padding: 5px; /* Agrega un espacio interno alrededor del logo */
+}
+
+
+/* Agrega estilos específicos para la animación del logo */
+.animated {
+    animation-duration: 1s; /* Ajusta la duración de la animación según tus necesidades */
+}
+
+/* Agrega estilos específicos para la animación "pulse" del logo */
+.pulse {
+    animation-name: pulse;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+
+.card {
+    transition: transform 0.3s;
+    cursor: pointer;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+.card-img-top {
+    transition: filter 0.3s;
+}
+
+.card:hover .card-img-top {
+    filter: brightness(90%);
+}
+
+
+.nav {
+    padding: 15px; /* Ajuste del espacio interno */
+    text-align: center; /* Centra los elementos */
+}
+
+
+
+/* Estilos para pantallas grandes  */
+@media (min-width: 992px) {
+    .navbar-expand-lg .nav-link {
+        color: rgb(0, 0, 0) !important;
+        border-radius: 10px;
+        margin-left: 2px;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    .navbar-expand-lg .nav-link:hover {
+        background-color: rgb(182, 182, 114);
+        color: #030303 !important;
+    }
+
+    .navbar-expand-lg .nav-link i {
+        margin-right: 5px;
+    }
+}
+
+
+.input-form{
+    border-radius: 5px;
+}
+
+.btn-vintage {
+    background-color: #ffffff; /* Fondo blanco */
+    color: #030303; /* Texto azul */
+    border: 2px solid #1c334d; /* Borde azul */
+    border-radius: 25px; /* Bordes redondeados */
+    padding: 8px 20px; /* Espaciado interno */
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s; /* Efecto de transición */
+}
+
+.btn-vintage:hover {
+    background-color: rgb(104, 154, 207); /* Fondo azul al pasar el ratón */
+    color: #ffffff; /* Texto blanco al pasar el ratón */
+    border-color: #ffffff; /* Borde blanco al pasar el ratón */
+}
+
+
+/* Estilos para los botones */
+.btn {
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}

@@ -1,0 +1,179 @@
+<!-- tu_template.html -->
+{% extends "travel/layout.html" %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %}"
+                role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <h2 class="mb-4 text-center font-weight-bold text-info">Registro de Pagador</h2>
+            <div class="mb-3">
+                <label for="id_role">Tipo de usuario:</label>
+                {{ form.role }}
+            </div>
+
+
+            <form method="post" action="{% url 'save_passenger' %}" class="ajax-form">
+                {% csrf_token %}
+                <div class="row mb-3" id="payerForms" style="display: none;">
+                    {% for field in form_payer %}
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ field.id_for_label }}">{{ field.label|capfirst }}</label>
+                        {{ field }}
+                    </div>
+                    {% endfor %}
+                    <button type="submit" id="btn-p1" class="btn btn-info btn-block rounded-pill">Registrar
+                        Pagador</button>
+
+                </div>
+            </form>
+            <br>
+            <div id="success-message" class="alert alert-success" style="display: none;" role="alert">
+                <!-- Mensaje de éxito -->
+            </div>
+            <div id="error-message" class="alert alert-danger" style="display: none;" role="alert">
+                <!-- Mensaje de error -->
+            </div>
+
+            <form method="post" action="{% url 'save_passenger' %}" class="ajax-form">
+                {% csrf_token %}
+                <div class="row mb-3" id="guestPassengerForms" style="display: none;">
+                    <div class="col-md-12">
+                        <h3 class="text-center">Información del Pagador</h3>
+                    </div>
+                    {% for field in form_passenger_invited %}
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ field.id_for_label }}">{{ field.label|capfirst }}</label>
+                        {{ field }}
+                    </div>
+                    {% endfor %}
+                    <button type="submit" id="btn-p2" class="btn btn-info btn-block rounded-pill">Registrar
+                        Pagador</button>
+                </div>
+            </form>
+            <div id="success-message" class="alert alert-success" style="display: none;" role="alert">
+                <!-- Mensaje de éxito -->
+            </div>
+            <div id="error-message" class="alert alert-danger" style="display: none;" role="alert">
+                <!-- Mensaje de error -->
+            </div>
+            <form method="post" action="{% url 'save_passenger' %}" class="ajax-form">
+                {% csrf_token %}
+                <div class="row mb-3" id="passengerFormContainer" style="display: flex;">
+                    {% for field in form_passenger %}
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ field.id_for_label }}">{{ field.label|capfirst }}</label>
+                        {{ field }}
+                    </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-info btn-block rounded-pill">Registrar Pasajero</button>
+                </div>
+            </form>
+            <a href="{% url 'list_passengers' %}" class="btn btn-warning btn-block mt-3 rounded-pill">Listar
+                Pasajeros</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const roleField = document.getElementById('id_role');
+        const payerForms = document.getElementById('payerForms');
+        const passengerFormContainer = document.getElementById('passengerFormContainer');
+        const guestPassengerForms = document.getElementById('guestPassengerForms');
+
+        // Ocultar todos los formularios al cargar la página
+        payerForms.style.display = 'none';
+        passengerFormContainer.style.display = 'flex';
+        guestPassengerForms.style.display = 'none';
+
+        roleField.addEventListener('change', function () {
+
+            if (this.value === 'BOTH' || this.value === 'PAYER') {
+
+                payerForms.style.display = 'none';
+                passengerFormContainer.style.display = 'flex';
+                if (this.value === 'BOTH') {
+                    guestPassengerForms.style.display = 'flex';
+                } else {
+                    payerForms.style.display = 'flex';
+                }
+            } else {
+                payerForms.style.display = 'none';
+                passengerFormContainer.style.display = 'flex';
+                guestPassengerForms.style.display = 'none';
+            }
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const forms = document.querySelectorAll('.ajax-form');
+        forms.forEach(form => {
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                console.log(formData)
+                try {
+                    const response = await fetch(this.action, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        showMessage('success-message', data.message);
+                        document.querySelector('#btn-p2').disabled = true;
+                        document.querySelector('#btn-p1').disabled = true;
+                        if (data.message === 'Pasajero guardado exitosamente') {
+                            window.location.href = '/list_passengers';
+                        }
+                    } else {
+                        const errorData = await response.json();
+                        showMessage('error-message', errorData.error);
+
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+
+        function showMessage(elementId, message) {
+            const messageElement = document.getElementById(elementId);
+            messageElement.innerText = message;
+            messageElement.style.display = 'block';
+            setTimeout(() => {
+                messageElement.style.display = 'none';
+            }, 3000);
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const payerRoleField = document.querySelector('#payerForms select[name="role"]');
+        const guestRoleField = document.querySelector('#guestPassengerForms select[name="role"]');
+        const passengerForm = document.querySelector('#passengerFormContainer select[name="role"]');
+
+      //  if (payerRoleField) {
+        //    payerRoleField.disabled = true;
+        //}
+
+        //if (guestRoleField) {
+           // guestRoleField.disabled = true;
+        //
+        //if (passengerForm) {
+            //passengerForm.disabled = true;
+        //}
+    });
+
+</script>
+{% endblock %}

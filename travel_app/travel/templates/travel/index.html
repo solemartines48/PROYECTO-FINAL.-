@@ -1,0 +1,363 @@
+{% extends "travel/layout.html" %}
+{% load static %}
+
+{% block index %}
+
+<style>
+    /* Estilos adicionales */
+    .card {
+        position: relative;
+        overflow: hidden;
+        height: 420px;
+        /* Altura fija para todas las tarjetas */
+    }
+
+    .card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .card-title {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 10px;
+        background-color: rgba(22, 21, 21, 0.7);
+        color: white;
+        text-align: center;
+        transform: translateY(0);
+        transition: transform 0.4s ease-in-out;
+        z-index: 1;
+    }
+
+    .card:hover .card-title {
+        transform: translateY(-500%);
+    }
+
+    .card-title::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(75, 74, 74, 0);
+        transition: background-color 0.2s ease-in-out;
+        z-index: -1;
+    }
+
+    .card:hover .card-title::after {
+        background-color: rgba(22, 21, 21, 0.7);
+    }
+
+    /* Estilos adicionales */
+    .carousel-item img {
+        margin: auto;
+        height: 60vh;
+        /* Ajusta la altura de las imágenes */
+        object-fit: cover;
+        display: block;
+        width: 97%;
+    }
+
+    .carousel-item {
+        transition: opacity 1s ease-in-out;
+        /* Transición de opacidad */
+        text-align: center;
+    }
+
+    /* Estilos para las flechas de navegación */
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 5%;
+        background: none;
+        border: none;
+        font-size: 2rem;
+        color: rgba(0, 0, 0, 0.5);
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .carousel-control-prev:hover,
+    .carousel-control-next:hover {
+        color: rgba(0, 0, 0, 0.8);
+    }
+
+
+    /* Ocultar los controles al inicio */
+    .carousel-control-prev,
+    .carousel-control-next {
+        display: none;
+    }
+
+    /* Mostrar los controles solo al hacer hover */
+    .carousel:hover .carousel-control-prev,
+    .carousel:hover .carousel-control-next {
+        display: block;
+    }
+
+    /* Estilos para la fila con el logo y la descripción */
+    .company-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        padding: 10px;
+        border: 2px solid rgb(111, 111, 187);
+        border-radius: 5px;
+    }
+
+    .company-logo {
+        width: 200px;
+        height: 200px;
+        height: auto;
+        margin-right: 20px;
+    }
+
+    .company-description {
+        flex: 1;
+        font-size: 18px;
+
+    }
+
+    /* Estilos para el footer */
+    footer {
+        position: relative;
+        color: white;
+        padding: 50px 0;
+        bottom: 0;
+        width: 100%;
+        background-image: url('static/f1.webp');
+        /* Ruta de tu imagen */
+        background-size: cover;
+        background-position: center;
+    }
+
+    /* Estilos para el formulario */
+    .contact-form {
+        max-width: 400px;
+        margin: 0 auto;
+        background-color: rgba(0, 0, 0, 0.6);
+        /* Fondo transparente */
+        padding: 20px;
+        border-radius: 5px;
+    }
+
+    .form-control {
+        margin-bottom: 20px;
+        background-color: transparent;
+        border: 1px solid white;
+        color: white;
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .btn-submit {
+        background-color: #6f6fbb;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        transition: background-color 0.3s ease-in-out;
+    }
+
+    .btn-submit:hover {
+        background-color: #4f4f8f;
+    }
+
+    .card-description {
+        display: none;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 10px;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        text-align: center;
+        font-family: Arial, sans-serif;
+        transition: transform 0.3s ease-in-out;
+        z-index: 1;
+        opacity: 0;
+        transform: translateY(100%);
+    }
+
+    .card:hover .card-description {
+        display: block;
+        opacity: 1;
+        transform: translateY(0);
+    }
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel" data-bs-interval="2000">
+    <div class="carousel-inner">
+        <div class="carousel-item">
+            <img src="{% static 's4.jpeg' %}" class="d-block" alt="Adventure in Nature">
+        </div>
+        <div class="carousel-item">
+            <img src="{% static 's3.webp' %}" class="d-block" alt="Historical Cities">
+        </div>
+        <div class="carousel-item active">
+            <img src="{% static 's1.jpeg' %}" class="d-block" alt="Beautiful Beach">
+        </div>
+        <div class="carousel-item">
+            <img src="{% static 's2.jpeg' %}" class="d-block" alt="Adventure in Nature">
+        </div>
+
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden"></span>
+    </button>
+</div>
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center font-weight-bold text-primary">Acerca de AdvenTours</h2>
+    <div class="company-row">
+        <img src="{% static 'logo.jpeg' %}" class="company-logo" alt="AdvenTours Logo">
+        <p class="company-description">
+            AdvenTours es una compañía dedicada a proporcionar experiencias únicas de viaje.
+            Con más de 10 años de experiencia, nos especializamos en destinos fuera de lo común,
+            llevándote a explorar lugares inolvidables y actividades emocionantes. Nuestro objetivo
+            es ofrecer aventuras auténticas que te permitan descubrir el mundo de una manera
+            completamente nueva.
+        </p>
+    </div>
+</div>
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center font-weight-bold text-primary">Descubre nuevos destinos</h2>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <img src="{% static 's1.jpeg' %}" alt="Beautiful Beach">
+                <h5 class="card-title">Playas Exóticas</h5>
+                <p class="card-description">Sumérgete en un paraíso terrenal de aguas cristalinas y arenas doradas. Las
+                    playas exóticas te invitan a un mundo de serenidad y aventura. Descubre una mezcla perfecta entre la
+                    calma del oleaje y la emoción de actividades acuáticas. Explora el encanto natural de estos destinos
+                    que cautivan con su belleza virgen y paisajes impresionantes.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <img src="{% static 's2.jpeg' %}" alt="Adventure in Nature">
+                <h5 class="card-title">Aventuras en la Naturaleza</h5>
+                <p class="card-description">Descubre el corazón de la naturaleza en su forma más pura y salvaje.
+                    Sumérgete en un mundo de aventuras entre majestuosos bosques, picos imponentes y senderos sinuosos.
+                    Experimenta la emoción de explorar terrenos desconocidos, descubrir paisajes impresionantes y
+                    conectar con la esencia misma del aire puro.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <img src="{% static 's3.webp' %}" alt="Historical Cities">
+                <h5 class="card-title">Ciudades Históricas</h5>
+                <p class="card-description">Sumérgete en el encanto del pasado en ciudades impregnadas de historia y
+                    legado. Recorre calles empedradas donde cada edificio cuenta una historia centenaria. Estos sitios
+                    atesoran monumentos y arquitectura que narran el devenir de culturas antiguas.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <img src="{% static 's4.jpeg' %}" alt="Beautiful Beach">
+                <h5 class="card-title">Lugares Extraordinarios</h5>
+                <p class="card-description">Descubre rincones que desafían lo común, destinos que asombran y inspiran.
+                    Explora lo inesperado y sumérgete en lugares fuera de serie que maravillan tus sentidos.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <img src="{% static 's1.jpeg' %}" alt="Adventure in Nature">
+                <h5 class="card-title">Naturaleza Extrema</h5>
+                <p class="card-description">Adéntrate en la naturaleza en su forma más salvaje. Vive la aventura entre
+                    paisajes majestuosos, experimenta la emoción pura y conecta con la esencia misma del entorno.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <img src="{% static 's2.jpeg' %}" alt="Historical Cities">
+                <h5 class="card-title">Ciudades Históricas</h5>
+                <p class="card-description">Explora calles ancestrales, monumentos que narran el devenir de culturas
+                    pasadas. Sumérgete en el encanto del pasado y descubre la riqueza histórica de ciudades centenarias.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+</div>
+<br>
+<footer>
+    <div class="container text-center">
+        <h3>Contacto</h3>
+        <p>¡Déjanos saber tus comentarios o preguntas!</p>
+        <form class="contact-form">
+            <input type="text" class="form-control" placeholder="Nombre" required>
+            <input type="email" class="form-control" placeholder="Correo electrónico" required>
+            <textarea class="form-control" rows="3" placeholder="Mensaje" required></textarea>
+            <button type="submit" class="btn btn-submit">Enviar</button>
+        </form>
+    </div>
+</footer>
+<script>
+    $(document).ready(function () {
+        $('.contact-form').submit(function (event) {
+            event.preventDefault();
+            var nombre = $('input[placeholder="Nombre"]').val();
+            var email = $('input[placeholder="Correo electrónico"]').val();
+            var mensaje = $('textarea[placeholder="Mensaje"]').val();
+            var formData = {
+                'nombre': nombre,
+                'email': email,
+                'mensaje': mensaje
+            };
+            $.ajax({
+                type: 'POST',
+                url: '/save_contact',
+                data: formData,
+                success: function (response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Datos enviados exitosamente!',
+                        text: 'Nos pondremos en contacto contigo pronto.'
+                    }).then(function () {
+                        location.reload();
+                    });
+                },
+                error: function (error) {
+                    console.error('Error al guardar los datos:', error);
+                }
+            });
+        });
+    });
+
+</script>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+
+{% endblock %}

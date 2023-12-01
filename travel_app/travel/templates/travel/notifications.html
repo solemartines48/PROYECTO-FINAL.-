@@ -1,0 +1,115 @@
+{% extends "travel/layout.html" %}
+
+{% block body %}
+<div class="timeline">
+    {% for notification in notifications %}
+    <div class="timeline-item">
+        
+        <div class="timeline-date" data-bs-toggle="modal" data-bs-target="#modal{{ forloop.counter }}">
+            {{ notification.timestamp }}
+        </div>
+        <div class="timeline-node node-{{ forloop.counter }}"></div>
+        <div class="modal fade" id="modal{{ forloop.counter }}" tabindex="-1" role="dialog"
+            aria-labelledby="modal{{ forloop.counter }}Label" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modal{{ forloop.counter }}Label">Detalles de la notificación</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="cloud">
+                            <p><strong>Fecha:</strong> {{ notification.timestamp }}</p>
+                            <p><strong>Correo:</strong> {{ notification.email }}</p>
+                            <p><strong>Mensaje:</strong> {{ notification.message }}</p>
+                            <p><strong>Nombre de usuario:</strong> {{ notification.email }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Fin Modal -->
+    </div>
+    {% endfor %}
+</div>
+<style>
+    .cloud {
+        background-color: #ffffff;
+        border-radius: 20px;
+        padding: 20px;
+    }
+
+    .timeline-date:hover::after {
+        display: block;
+    }
+
+
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+
+    .timeline:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 9px;
+        height: 100%;
+        width: 2px;
+        background: #000;
+        z-index: 0;
+    }
+
+    .timeline-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        position: relative;
+    }
+
+    .timeline-date {
+        font-weight: bold;
+        margin-right: 10px;
+        z-index: 1;
+    }
+
+    .timeline-node {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 2px solid #ffffff;
+        position: relative;
+        z-index: 2;
+    }
+
+    .timeline-date {
+        font-weight: bold;
+        margin-right: 10px;
+        position: relative;
+        z-index: 1;
+        cursor: pointer;
+    }
+
+    .node-1 {
+        background-color: rgb(248, 248, 0);
+    }
+
+    .node-2 {
+        background-color: #000000;
+    }
+
+    .node-3 {
+        background-color: #830000;
+    }
+
+    .node-4 {
+        background-color: #000000;
+    }
+
+    .node-5 {
+        background-color: #000000;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

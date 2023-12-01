@@ -1,0 +1,106 @@
+{% extends "travel/layout.html" %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %}"
+                role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            
+            <h2 class="mb-4 text-center font-weight-bold text-info">Lista de Viajes</h2>
+            <form method="get" class="form-inline mb-3" id="searchForm">
+                <div class="form-group mr-2 flex-grow-1">
+                    <input type="text" class="form-control rounded-pill w-100" id="search_query" name="search_query" placeholder="Buscar por origen o destino" value="{{ search_query|default:'' }}">
+                </div>
+                <button type="submit" class="btn-vintage">Buscar</button>
+            </form>
+            {% if trips %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">Origen</th>
+                            <th scope="col">Destino</th>
+                            <th scope="col">Fecha Salida</th>
+                            <th scope="col">Fecha Llegada</th>
+                            <th scope="col">Capacidad</th>
+                            <th scope="col">Tipo de Transporte</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col">Precio por Día</th>
+                            <th scope="col">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for trip in trips %}
+                        <tr>
+                            <td>{{ trip.origin }}</td>
+                            <td>{{ trip.destination }}</td>
+                            <td>{{ trip.departure_date }}</td>
+                            <td>{{ trip.arrival_date }}</td>
+                            <td>{{ trip.capacity }}</td>
+                            <td>{{ trip.get_transportation_type_display }}</td>
+                            <td>{{ trip.get_trip_status_display }}</td>
+                            <td>{{ trip.price_per_day }}</td>
+                            <td>
+                            <a href="{% url 'edit_trip' trip.id %}" class="btn btn-outline-warning btn-sm">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ trip.id }}">
+                                <i class="fas fa-trash-alt"></i> Eliminar
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="deleteModal{{ trip.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ trip.id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteModalLabel{{ trip.id }}">Confirmar Eliminación</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>¿Estás seguro de que deseas eliminar el viaje {{ trip.id }}?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    <a href="{% url 'delete_trip' trip.id %}" class="btn btn-danger">Confirmar</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="pagination">
+                <span class="step-links">
+                    {% if trips.has_previous %}
+                    <a href="?page=1">&laquo; primera |</a>
+                    <a href="?page={{ trips.previous_page_number }}">anterior</a>
+                    {% endif %}
+
+                    <span class="current">
+                        Página {{ trips.number }} de {{ trips.paginator.num_pages }}.
+                    </span>
+
+                    {% if trips.has_next %}
+                    <a href="?page={{ trips.next_page_number }}">siguiente |</a>
+                    <a href="?page={{ trips.paginator.num_pages }}">ultima &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+            {% endif %}
+
+            <a href="{% url 'create_trip' %}" class="btn btn-primary btn-block mt-3 rounded-pill">Crear Viaje</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

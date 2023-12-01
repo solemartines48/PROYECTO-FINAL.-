@@ -1,0 +1,259 @@
+{% extends "travel/layout.html" %}
+
+{% block body %}
+{% if messages %}
+{% for message in messages %}
+<div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %}"
+    role="alert">
+    {{ message }}
+</div>
+{% endfor %}
+{% endif %}
+<div class="container mt-5">
+    <h2 class="mb-4 text-center font-weight-bold text-info">Estado de Deuda de {{ passenger.name }}
+        {{passenger.lastname}}</h2>
+    {% if sales %}
+    <div class="debt-summary">
+        <div class="debt-info">
+            <h4>Deuda Actual</h4>
+            <p class="debt-amount">$ {{ total_debt }}</p>
+        </div>
+        <div class="installments-info">
+            <h4>Cuotas Restantes</h4>
+            <p>{{ installments_left }} / {{ total_installments }}</p>
+        </div>
+        <div class="debt-status">
+            <h4>Estado de Deuda</h4>
+            <p class="{{ sale_status }}">{{ sale_status_display }}</p>
+        </div>
+    </div>
+    <div class="sales-details">
+        <h3>Detalles de Pagos Pendientes</h3>
+        <ul class="pending-payments">
+            {% for sale in sales %}
+            <li class="pending-payment">
+                <div class="pending-payment-details">
+                    <p>ID Venta: {{ sale.id }}</p>
+                    <p>Monto Total: $ {{ sale.total_debt }}</p>
+                    <p>Fecha: {{ sale.sale_date }}</p>
+                    {% if sale.sale_status == 'PENDING' %}
+                    <p class="sale-status" style="color: red;">Pendiente</p>
+                    {% elif sale.sale_status == 'CANCELLED' %}
+                    <p class="sale-status" style="color: rgb(255, 17, 0)">Cancelada</p>
+                    {% elif sale.sale_status == 'COMPLETED' %}
+                    <p class="sale-status" style="color: rgb(75, 219, 75);">Completada</p>
+                    {% endif %}
+                    <button class="btn-details" data-toggle="modal" data-target="#detailsModal{{ sale.id }}">Ver
+                        Detalles</button>
+                    <button class="btn-details" data-toggle="modal" data-target="#paymentModal{{ sale.id }}"
+                        data-installment-value="{{ sale.installment_value }}"
+                        data-installments="{{ sale.installments }}" data-sale-id="{{ sale.id }}">Actualizar</button>
+
+                </div>
+            </li>
+            <div class="modal fade" id="paymentModal{{ sale.id }}" tabindex="-1" role="dialog"
+                aria-labelledby="paymentModalLabel{{ sale.id }}" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <form action="{% url 'create_payment' sale.id passenger.id%}" method="post">
+                            {% csrf_token %}
+                            <div class="modal-header bg-info text-white">
+                                <h5 class="modal-title" id="detailsModalLabel{{ sale.id }}">Pagar Venta ID {{ sale.id }}</h5>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="valorPagar">Valor Cuota:</label>
+                                    <input type="text" class="form-control" id="valorPagar" name="valorPagar" readonly
+                                        data-installment-value="{{ sale.installment_value }}"
+                                        value="{{ sale.installment_value }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cuotas">Número Cuotas:</label>
+                                    <input type="number" class="form-control" id="cuotas" name="cuotas" required
+                                        onchange="calculateTotal('{{ sale.installment_value }}', this.value, '{{ sale.id }}')"
+                                        value="1" min="1" max="{{ sale.installments }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="totalPagar">Total a Pagar:</label>
+                                    <input type="text" class="form-control" id="totalPagar{{ sale.id }}" name="totalPagar" value="{{ sale.installment_value }}"
+                                        readonly>
+                                </div>
+                                <input type="hidden" name="sale_id" value="{{ sale.id }}">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-info btn-details">Actualizar</button>
+                                <button type="button" class="btn btn-secondary btn-details"
+                                    data-dismiss="modal">Cerrar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <script>
+
+                    function calculateTotal(installmentValue, numberOfInstallments, saleId) {
+                        console.log(saleId)
+                        const totalPayment = parseFloat(installmentValue) * parseInt(numberOfInstallments);
+                        console.log(isNaN(totalPayment) ? 'Invalid' : totalPayment.toFixed(2))
+                        document.getElementById('totalPagar' + saleId).value = isNaN(totalPayment) ? 'Invalid' : totalPayment.toFixed(2);
+                  }
+                
+                </script>
+            </div>
+
+            <div class="modal fade" id="detailsModal{{ sale.id }}" tabindex="-1" role="dialog"
+                aria-labelledby="detailsModalLabel{{ sale.id }}" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header bg-info text-white">
+                            <h5 class="modal-title" id="detailsModalLabel{{ sale.id }}">Detalles de Venta ID {{ sale.id
+                                }}</h5>
+                            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>ID Venta: {{ sale.id }}</p>
+                            <p>Monto Por Día: $ {{ sale.trip.price_per_day }}</p>
+                            <p>Fecha: {{ sale.sale_date }}</p>
+                            <p>Método Pago: {{ sale.payment_method }}</p>
+                            <p>Cuotas Restantes: {{ sale.installments }}</p>
+                            <p>Viaje: Desde {{ sale.trip.origin }} hasta {{ sale.trip.destination }}</p>
+                            <p>Fecha de Salida: {{ sale.trip.departure_date }}</p>
+                            <p>Fecha de Llegada: {{ sale.trip.arrival_date }}</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-details"
+                                data-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% endfor %}
+        </ul>
+        <div class="pagination">
+            <span class="step-links">
+                {% if sales.has_previous %}
+                <a href="?page=1">&laquo; primera |</a>
+                <a href="?page={{ sales.previous_page_number }}">anterior</a>
+                {% endif %}
+
+                <span class="current">
+                    Página {{ sales.number }} de {{ sales.paginator.num_pages }}.
+                </span>
+
+                {% if sales.has_next %}
+                <a href="?page={{ sales.next_page_number }}">siguiente |</a>
+                <a href="?page={{ sales.paginator.num_pages }}">ultima &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+    {% else %}
+    <p>No hay ventas registradas para este pasajero.</p>
+    {% endif %}
+</div>
+
+
+<style>
+    /* Estilos existentes */
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    h2 {
+        font-size: 24px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .debt-summary {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+    }
+
+    .debt-info,
+    .installments-info,
+    .debt-status {
+        text-align: center;
+    }
+
+    .debt-amount {
+        font-size: 28px;
+        font-weight: bold;
+        color: #ff6347;
+    }
+
+    .installments-info p {
+        font-size: 30px;
+    }
+
+    .sales-details {
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .sales-details h3 {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+
+    .sales-details ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    /* Nuevos estilos para las tarjetas de pagos pendientes */
+    .pending-payments {
+        padding: 0;
+    }
+
+    .pending-payment {
+        background-color: rgba(255, 255, 255, 0.61);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .pending-payment-details p {
+        margin: 5px 0;
+        font-size: 16px;
+        color: rgb(83, 83, 82);
+        font-weight: bold;
+    }
+
+    .debt-status p {
+        color: rgb(169, 172, 5);
+        font-weight: bold;
+
+    }
+
+    .btn-details {
+        display: inline-block;
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: bold;
+        border: 1px solid rgb(133, 34, 158);
+        border-radius: 18px;
+        color: rgb(133, 34, 158);
+        background-color: transparent;
+        cursor: pointer;
+        transition: background-color 0.8s, color 0.3s;
+    }
+
+    .btn-details:hover {
+        background-color: #816083;
+        color: #fff;
+    }
+</style>
+{% endblock %}
